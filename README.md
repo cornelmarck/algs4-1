@@ -1,6 +1,6 @@
-# My solution code to Algorithms, part 1 by Princeton University
+# Solution code to Princeton Algorithms, part 1
 
-These are my solutions to the assignments of Algorithms part 1 by Robert Sedgewick and Kevin Wayne.
+My solution code to the assignments of Algorithms, Part 1 by Robert Sedgewick and Kevin Wayne (Princeton University).
 
 https://www.coursera.org/learn/algorithms-part1
 
