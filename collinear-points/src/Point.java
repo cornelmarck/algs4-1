@@ -1,14 +1,5 @@
-/******************************************************************************
- *  Compilation:  javac Point.java
- *  Execution:    java Point
- *  Dependencies: none
- *  
- *  An immutable data type for points in the plane.
- *  For use on Coursera, Algorithms Part I programming assignment.
- *
- ******************************************************************************/
-
 import java.util.Comparator;
+
 import edu.princeton.cs.algs4.StdDraw;
 
 public class Point implements Comparable<Point> {
@@ -103,11 +94,11 @@ public class Point implements Comparable<Point> {
      * @return the Comparator that defines this ordering on points
      */
     public Comparator<Point> slopeOrder() {
-        return new bySlope();
+        return new BySlope();
     }
 
-    private class bySlope implements Comparator<Point> {
-        public bySlope(){}
+    private class BySlope implements Comparator<Point> {
+        public BySlope(){}
 
         public int compare(Point a, Point b) {
             return Double.compare(slopeTo(a), slopeTo(b));
@@ -126,10 +117,20 @@ public class Point implements Comparable<Point> {
         return "(" + x + ", " + y + ")";
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Point point = (Point) o;
+        return x == point.x && y == point.y;
+    }
+
     /**
      * Unit tests the Point data type.
      */
     public static void main(String[] args) {
         /* YOUR CODE HERE */
     }
+
+
 }

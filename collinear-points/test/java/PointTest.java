@@ -5,6 +5,7 @@ import java.util.Comparator;
 import static org.junit.jupiter.api.Assertions.*;
 
 class PointTest {
+
     @Test
     void slopeTo() {
         Point a = new Point(0, 0);
@@ -79,9 +80,10 @@ class PointTest {
     void bySlopeEquals() {
         Point origin = new Point(0, 0);
         Point p1 = new Point (1, 1);
+        Point p2 = new Point(2, 2);
 
         Comparator<Point> comp = origin.slopeOrder();
-        assertEquals(0, comp.compare(p1, p1));
+        assertEquals(0, comp.compare(p1, p2));
     }
 
 }
