@@ -53,12 +53,12 @@ public class LineSegment {
         throw new UnsupportedOperationException("hashCode() is not supported");
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        LineSegment that = (LineSegment) o;
-        return Objects.equals(p, that.p) && Objects.equals(q, that.q);
-    }
+//    @Override
+//    public boolean equals(Object o) {
+//        if (this == o) return true;
+//        if (o == null || getClass() != o.getClass()) return false;
+//        LineSegment that = (LineSegment) o;
+//        return Objects.equals(p, that.p) && Objects.equals(q, that.q);
+//    }
 }
 

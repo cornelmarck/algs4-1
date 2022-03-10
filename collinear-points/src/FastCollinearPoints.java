@@ -2,7 +2,13 @@ import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.StdDraw;
 import edu.princeton.cs.algs4.StdOut;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 public class FastCollinearPoints {
     private final List<Point> points;
@@ -11,9 +17,10 @@ public class FastCollinearPoints {
 
     // finds all line segments containing 4 or more points
     public FastCollinearPoints(Point[] points) {
+        checkInput(points);
         this.points = new ArrayList<>(Arrays.asList(points));
-        segments = new LinkedList<>();
 
+        segments = new LinkedList<>();
         for (Point origin : this.points) {
             List<Point> slopeSorted = new ArrayList<>(this.points);
             slopeSorted.sort(origin.slopeOrder());
@@ -64,7 +71,7 @@ public class FastCollinearPoints {
 
     private void backtrack(List<Point> slopeSortedPoints, Point origin, List<Point> candidates, int start) {
         int lastElement = candidates.size() - 1;
-        if (candidates.size() > 0 && candidates.get(lastElement) == origin) {
+        if (!candidates.isEmpty() && candidates.get(lastElement) == origin) {
             return;
         }
 
@@ -95,7 +102,7 @@ public class FastCollinearPoints {
         Iterator<CandidateSegment> iter = segments.iterator();
         while (iter.hasNext()) {
             CandidateSegment existing = iter.next();
-            if (existing.getSlope() == potential.getSlope() && existing.hasPointsInCommon(potential)) {
+            if (existing.collinearWith(potential)) {
                 collision = true;
                 if (existing.size() < potential.size()) {
                     iter.remove();
@@ -103,17 +110,37 @@ public class FastCollinearPoints {
                 }
             }
         }
-        if (!collision || isSuperior) {
-            segments.add(potential);
+        if (collision && !isSuperior) {
+            return;
         }
+        segments.add(potential);
     }
 
     private List<LineSegment> generateLineSegments() {
         lineSegments = new ArrayList<>();
         for (CandidateSegment s : segments) {
-            lineSegments.add(new LineSegment(s.getFirstPoint(), s.getLastPoint()));
+            lineSegments.add(new LineSegment(s.first(), s.last()));
         }
         return lineSegments;
+    }
+
+    private static void checkInput(Point[] input) {
+        if (input == null) {
+            throw new IllegalArgumentException();
+        }
+
+        List<Point> vals = new ArrayList<>(Arrays.asList(input));
+        if (vals.contains(null)) {
+            throw new IllegalArgumentException();
+        }
+        Collections.sort(vals);
+        if (vals.size() > 1) {
+            for (int i = 1; i < vals.size(); i++) {
+                if (vals.get(i-1).compareTo(vals.get(i)) == 0) {
+                    throw new IllegalArgumentException();
+                }
+            }
+        }
     }
 
     private static class CandidateSegment {
@@ -137,27 +164,23 @@ public class FastCollinearPoints {
             return slope;
         }
 
-        public Point getFirstPoint() {
+        public Point first() {
             return points.get(0);
         }
 
-        public Point getLastPoint() {
+        public Point last() {
             return points.get(points.size() - 1);
         }
 
-        public boolean isSupersededBy(CandidateSegment other) {
-            return (getSlope() == other.getSlope() && hasPointsInCommon(other) && size() < other.size());
-        }
-
-        private boolean hasPointsInCommon(CandidateSegment with) {
-            for (Point p : this.points) {
-                if (with.points.contains(p)) {
+        public boolean collinearWith(CandidateSegment other) {
+            if (getSlope() == other.getSlope()) {
+                if (first() == other.first() || first() == other.last()) {
                     return true;
                 }
+                return first().slopeTo(other.first()) == first().slopeTo(other.last())
+                        || last().slopeTo(other.first()) == last().slopeTo(other.last());
             }
             return false;
         }
-
-
     }
 }
