@@ -14,14 +14,12 @@ class FastCollinearPointsTest {
         TestUtils.assertInput8(segments);
     }
 
-    @Test
-    public void testInput400() {
+    public void runInput400() {
         Point[] points = TestUtils.readPoints(new File(TestUtils.ROOT + "input400.txt"));
         FastCollinearPoints fast = new FastCollinearPoints(points);
     }
 
-    @Test
-    public void testInput1000() {
+    public void runInput1000() {
         Point[] points = TestUtils.readPoints(new File(TestUtils.ROOT + "input1000.txt"));
         FastCollinearPoints fast = new FastCollinearPoints(points);
     }

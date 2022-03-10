@@ -4,6 +4,14 @@ public class LineSegment {
     private final Point p;   // one endpoint of this line segment
     private final Point q;   // the other endpoint of this line segment
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        LineSegment that = (LineSegment) o;
+        return Objects.equals(p, that.p) && Objects.equals(q, that.q);
+    }
+
     /**
      * Initializes a new line segment.
      *

@@ -11,23 +11,20 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class FastCollinearPoints {
-    private final List<Point> points;
-    private List<CandidateSegment> segments;
+    private final Point[] sortedPoints;
     private List<LineSegment> lineSegments;
 
     // finds all line segments containing 4 or more points
     public FastCollinearPoints(Point[] points) {
         checkInput(points);
-        this.points = new ArrayList<>(Arrays.asList(points));
+        lineSegments = new ArrayList<>();
 
-        segments = new LinkedList<>();
-        for (Point origin : this.points) {
-            List<Point> slopeSorted = new ArrayList<>(this.points);
-            slopeSorted.sort(origin.slopeOrder());
-            backtrack(slopeSorted, origin, new ArrayList<>(), 0);
+        sortedPoints = Arrays.copyOf(points, points.length);
+        Arrays.sort(sortedPoints);
+
+        for (Point pivot : sortedPoints) {
+            findCollinear(pivot, sortedPoints);
         }
-
-        lineSegments = generateLineSegments();
     }
 
     public static void main(String[] args) {
@@ -56,6 +53,7 @@ public class FastCollinearPoints {
             StdOut.println(segment);
             segment.draw();
         }
+        StdOut.println(collinear.numberOfSegments());
         StdDraw.show();
     }
 
@@ -69,59 +67,37 @@ public class FastCollinearPoints {
         return lineSegments.size();
     }
 
-    private void backtrack(List<Point> slopeSortedPoints, Point origin, List<Point> candidates, int start) {
-        int lastElement = candidates.size() - 1;
-        if (!candidates.isEmpty() && candidates.get(lastElement) == origin) {
-            return;
-        }
+    private void findCollinear(Point pivot, Point[] sortedPoints) {
+        Point[] slopeSorted = Arrays.copyOf(sortedPoints, sortedPoints.length);
+        Comparator<Point> bySlope = pivot.slopeOrder();
+        Arrays.sort(slopeSorted, bySlope);
 
-        Comparator<Point> bySlope = origin.slopeOrder();
-        if (candidates.size() > 1 && bySlope.compare(candidates.get(lastElement),
-                candidates.get(lastElement - 1)) != 0) {
-            return;
-        }
-
-        if (candidates.size() > 2) {
-            List<Point> collinearSegment = new ArrayList<>(candidates);
-            collinearSegment.add(origin);
-            processCandidateSegment(new CandidateSegment(collinearSegment));
-        }
-
-
-        for (int i = start; i < slopeSortedPoints.size(); i++) {
-            candidates.add(slopeSortedPoints.get(i));
-            backtrack(slopeSortedPoints, origin, candidates, i + 1);
-            candidates.remove(candidates.size() - 1);
-        }
-    }
-
-    private void processCandidateSegment(CandidateSegment potential) {
-        boolean collision = false;
-        boolean isSuperior = false;
-
-        Iterator<CandidateSegment> iter = segments.iterator();
-        while (iter.hasNext()) {
-            CandidateSegment existing = iter.next();
-            if (existing.collinearWith(potential)) {
-                collision = true;
-                if (existing.size() < potential.size()) {
-                    iter.remove();
-                    isSuperior = true;
+        int current = 1;
+        while (current < slopeSorted.length) {
+            int next = nextNonDuplicate(slopeSorted, slopeSorted[current], bySlope);
+            if (next > current + 2) {
+                if (pivot.compareTo(slopeSorted[current]) < 0) {
+                    lineSegments.add(new LineSegment(pivot, slopeSorted[next - 1]));
                 }
             }
+            current = next;
         }
-        if (collision && !isSuperior) {
-            return;
-        }
-        segments.add(potential);
     }
 
-    private List<LineSegment> generateLineSegments() {
-        lineSegments = new ArrayList<>();
-        for (CandidateSegment s : segments) {
-            lineSegments.add(new LineSegment(s.first(), s.last()));
+    private static int nextNonDuplicate(Point[] points, Point target, Comparator<Point> comp) {
+        int hi = points.length;
+        int lo = 0;
+
+        while (lo < hi) {
+            int mid = lo + (hi - lo) / 2;
+            if (comp.compare(points[mid], target) <= 0) {
+                lo = mid + 1;
+            }
+            else {
+                hi = mid;
+            }
         }
-        return lineSegments;
+        return lo;
     }
 
     private static void checkInput(Point[] input) {
@@ -140,47 +116,6 @@ public class FastCollinearPoints {
                     throw new IllegalArgumentException();
                 }
             }
-        }
-    }
-
-    private static class CandidateSegment {
-        private final double slope;
-        private final List<Point> points;
-
-        public CandidateSegment(List<Point> input) {
-            if (input.size() < 2) {
-                throw new IllegalArgumentException();
-            }
-            this.points = new ArrayList<>(input);
-            Collections.sort(points);
-            slope = points.get(0).slopeTo(points.get(points.size() - 1));
-        }
-
-        public int size() {
-            return points.size();
-        }
-
-        public double getSlope() {
-            return slope;
-        }
-
-        public Point first() {
-            return points.get(0);
-        }
-
-        public Point last() {
-            return points.get(points.size() - 1);
-        }
-
-        public boolean collinearWith(CandidateSegment other) {
-            if (getSlope() == other.getSlope()) {
-                if (first() == other.first() || first() == other.last()) {
-                    return true;
-                }
-                return first().slopeTo(other.first()) == first().slopeTo(other.last())
-                        || last().slopeTo(other.first()) == last().slopeTo(other.last());
-            }
-            return false;
         }
     }
 }
