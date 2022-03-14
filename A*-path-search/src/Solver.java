@@ -11,9 +11,12 @@ public class Solver {
     private GameTree original;
     private GameTree twin;
 
-
     // find a solution to the initial board (using the A* algorithm)
     public Solver(Board initial) {
+        if (initial == null) {
+            throw new IllegalArgumentException();
+        }
+
         original = new GameTree(initial, new ManhattanPriority());
         twin = new GameTree(initial.twin(), new ManhattanPriority());
 

@@ -118,7 +118,7 @@ public class Board {
         out.append(size).append(System.lineSeparator());
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
-                out.append(tiles[to1d(i, j)]);
+                out.append((int) tiles[to1d(i, j)]);
                 out.append(" ");
             }
             out.append(System.lineSeparator());
