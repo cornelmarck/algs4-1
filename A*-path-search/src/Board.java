@@ -1,6 +1,3 @@
-import edu.princeton.cs.algs4.In;
-import edu.princeton.cs.algs4.StdOut;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -14,6 +11,10 @@ public class Board {
     // create a board from an n-by-n array of tiles,
     // where tiles[row][col] = tile at (row, col)
     public Board(int[][] tiles) {
+        if (tiles == null) {
+            throw new IllegalArgumentException();
+        }
+
         this.tiles = copyTo1d(tiles);
         this.size = tiles.length;
         hammingDistance = computeHamming();
@@ -37,17 +38,15 @@ public class Board {
         manhattanDistance = computeManhattan();
     }
 
-    public Board(char[] tiles, int size, int hammingDistance, int manhattanDistance) {
-        this.tiles = tiles;
-        this.size = size;
-        this.hammingDistance = hammingDistance;
-        this.manhattanDistance = manhattanDistance;
+    private Board(Board other) {
+        tiles = Arrays.copyOf(other.tiles, other.tiles.length);
+        size = other.size;
+        hammingDistance = other.hammingDistance;
+        manhattanDistance = other.manhattanDistance;
     }
 
     // unit testing (not graded)
-    public static void main(String[] args) {
-
-    }
+    public static void main(String[] args) {}
 
     // board dimension n
     public int dimension() {
@@ -68,7 +67,7 @@ public class Board {
 
     // is this board the goal board?
     public boolean isGoal() {
-        return (manhattan() == 0);
+        return (hamming() == 0);
     }
 
     // sum of Manhattan distances between tiles and goal
@@ -110,13 +109,21 @@ public class Board {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Board board = (Board) o;
-        return Arrays.equals(tiles, board.tiles);
+        return size == board.size && Arrays.equals(tiles, board.tiles);
     }
 
     // string representation of this board
     public String toString() {
         StringBuilder out = new StringBuilder();
-        return " ";
+        out.append(size).append(System.lineSeparator());
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                out.append(tiles[to1d(i, j)]);
+                out.append(" ");
+            }
+            out.append(System.lineSeparator());
+        }
+        return out.toString();
     }
 
     // all neighboring boards
@@ -127,22 +134,22 @@ public class Board {
 
         List<Board> boards = new ArrayList<>();
         if (row > 0) {
-            Board neighbor = new Board(tiles, size);
+            Board neighbor = new Board(this);
             neighbor.swap(empty, to1d(row - 1, col));
             boards.add(neighbor);
         }
         if (row < size - 1) {
-            Board neighbor = new Board(tiles, size);
+            Board neighbor = new Board(this);
             neighbor.swap(empty, to1d(row + 1, col));
             boards.add(neighbor);
         }
         if (col > 0) {
-            Board neighbor = new Board(tiles, size);
+            Board neighbor = new Board(this);
             neighbor.swap(empty, to1d(row, col - 1));
             boards.add(neighbor);
         }
         if (col < size - 1) {
-            Board neighbor = new Board(tiles, size);
+            Board neighbor = new Board(this);
             neighbor.swap(empty, to1d(row, col + 1));
             boards.add(neighbor);
         }
@@ -177,7 +184,7 @@ public class Board {
 
     // a board that is obtained by exchanging any pair of tiles
     public Board twin() {
-        Board twin = new Board(tiles, size, hammingDistance, manhattanDistance);
+        Board twin = new Board(this);
 
         int empty = twin.findEmptyTile();
         if (empty > 1) {
