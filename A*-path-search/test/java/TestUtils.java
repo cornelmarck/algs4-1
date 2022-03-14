@@ -1,5 +1,8 @@
 import java.io.File;
+import java.util.List;
+
 import edu.princeton.cs.algs4.In;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestUtils {
     public static int[][] get2dArray(char[] tiles, int size) {
@@ -23,5 +26,14 @@ public class TestUtils {
             }
         }
         return tiles;
+    }
+
+    public static void checkSolution(Board expected, int movesExpected, Solver s) {
+        assertTrue(s.isSolvable());
+        assertEquals(movesExpected, s.moves());
+
+        List<Board> sol = (List<Board>) s.solution();
+        assertEquals(movesExpected + 1, sol.size());
+        assertEquals(expected, sol.get(sol.size() - 1));
     }
 }
