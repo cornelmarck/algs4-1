@@ -14,20 +14,39 @@ class PointSETTest {
 
         assertTrue(set.isEmpty());
         assertEquals(0, set.size());
-
     }
 
     @org.junit.jupiter.api.Test
     void insert() {
         PointSET set = new PointSET();
 
-        for (Point2D p : TestUtils.readFile(new File("test/resources/input10.txt"))) {
+        for (Point2D p : Utils.readFile(new File("test/resources/input10.txt"))) {
             set.insert(p);
         }
 
         assertEquals(10, set.size());
         assertTrue(set.contains(new Point2D(0.372, 0.497)));
         assertFalse(set.contains(new Point2D(0.599, 0.208)));
+    }
+
+    @org.junit.jupiter.api.Test
+    void insertCircle10() {
+        PointSET set = new PointSET();
+
+        for (Point2D p : Utils.readFile(new File("test/resources/circle10.txt"))) {
+            set.insert(p);
+        }
+        assertEquals(10, set.size());
+    }
+
+    @Test
+    void insertInput80k() {
+        PointSET set = new PointSET();
+
+        for (Point2D p : Utils.readFile(new File("test/resources/input80k.txt"))) {
+            set.insert(p);
+        }
+        assertEquals((int) 80E3, set.size());
     }
 
     @org.junit.jupiter.api.Test
@@ -45,7 +64,7 @@ class PointSETTest {
     @org.junit.jupiter.api.Test
     void range() {
         PointSET set = new PointSET();
-        Iterable<Point2D> input = TestUtils.readFile(new File("test/resources/input10.txt"));
+        Iterable<Point2D> input = Utils.readFile(new File("test/resources/input10.txt"));
 
         for (Point2D p : input) {
             set.insert(p);
