@@ -1,14 +1,13 @@
 import edu.princeton.cs.algs4.Point2D;
 import edu.princeton.cs.algs4.RectHV;
 
-import java.awt.*;
 import java.util.ArrayDeque;
 import java.util.Queue;
 import java.util.Set;
 import java.util.TreeSet;
 
 public class PointSET {
-    Set<Point2D> points;
+    private Set<Point2D> points;
 
     public PointSET() {
         points = new TreeSet<>();
@@ -23,10 +22,16 @@ public class PointSET {
     }
 
     public void insert(Point2D p) {
+        if (p == null) {
+            throw new IllegalArgumentException();
+        }
         points.add(p);
     }
 
     public boolean contains(Point2D p) {
+        if (p == null) {
+            throw new IllegalArgumentException();
+        }
         return points.contains(p);
     }
 
@@ -35,6 +40,10 @@ public class PointSET {
     }
 
     public Iterable<Point2D> range(RectHV rect) {
+        if (rect == null) {
+            throw new IllegalArgumentException();
+        }
+
         Queue<Point2D> result = new ArrayDeque<>();
 
         for (Point2D p : points) {
@@ -47,11 +56,15 @@ public class PointSET {
     }
 
     public Point2D nearest(Point2D p) {
-        double minSquareDistance = Double.MAX_VALUE;
+        if (p == null) {
+            throw new IllegalArgumentException();
+        }
+
+        double minSquareDistance = Double.POSITIVE_INFINITY;
         Point2D neighbour = null;
 
         for (Point2D other : points) {
-            if (p != other && p.distanceSquaredTo(other) < minSquareDistance) {
+            if (p.distanceSquaredTo(other) < minSquareDistance) {
                 neighbour = other;
                 minSquareDistance = p.distanceSquaredTo(other);
             }

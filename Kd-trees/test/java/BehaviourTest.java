@@ -47,7 +47,7 @@ public class BehaviourTest {
         for (Point2D p : Utils.readFile(referencePoints)) {
             neighbors.add(set.nearest(p));
         }
-        Assertions.assertEquals(neighbors, getNeighBorSolution(input));
+        Assertions.assertEquals(getNeighBorSolution(input), neighbors);
     }
 
     List<Point2D> getNeighBorSolution(File inputFile) {

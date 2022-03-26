@@ -13,14 +13,13 @@ class KdTreeTest {
 
         assertTrue(set.isEmpty());
         assertEquals(0, set.size());
-
     }
 
     @org.junit.jupiter.api.Test
     void insert() {
         KdTree set = new KdTree();
 
-        for (Point2D p : Utils.readFile(new File("test/resources/input10.txt"))) {
+        for (Point2D p : Utils.readFile(new File("test/resources/input/input10.txt"))) {
             set.insert(p);
         }
 
@@ -70,5 +69,20 @@ class KdTreeTest {
         set.insert(new Point2D(3, 2));
 
         assertEquals(b, set.nearest(a));
+    }
+
+    @Test
+    void nearest1() {
+        File referencePoints = new File(BehaviourTest.class.getResource("input/circle10.txt").getFile());
+        KdTree set = new KdTree();
+        for (Point2D p : Utils.readFile(referencePoints)) {
+            set.insert(p);
+        }
+
+        Point2D actual = new Point2D(0.5, 1);
+        Point2D expected = new Point2D(0.206107, 0.904508);
+        Point2D target = new Point2D(0.320, 0.708);
+
+        assertEquals(expected, set.nearest(target));
     }
 }
