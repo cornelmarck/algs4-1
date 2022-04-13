@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.HashSet;
 import java.util.Scanner;
+import java.util.Set;
 
 public class HypernymGraph {
     private final Digraph graph;
@@ -42,50 +44,50 @@ public class HypernymGraph {
     }
 
     private static class TopologicalSort {
-        private boolean[] marked;
+        private Set<Integer> marked;
         private Deque<Integer> stack;
 
         public TopologicalSort(Digraph graph) {
-            marked = new boolean[graph.V()];
+            marked = new HashSet<>();
             stack = new ArrayDeque<>();
 
-            for (int i = 0; i < marked.length; i++) {
-                if (!marked[i]) {
+            for (int i = 0; i < graph.V(); i++) {
+                if (!marked.contains(i)) {
                     dfs(graph, i);
                 }
             }
         }
 
         private void dfs(Digraph graph, int v) {
-            marked[v] = true;
+            marked.add(v);
             for (int w : graph.adj(v)) {
-                if (!marked[w]) {
+                if (!marked.contains(w)) {
                     dfs(graph, w);
                 }
             }
             stack.addFirst(v);
         }
 
-        private Iterable<Integer> order() {
+        public Iterable<Integer> order() {
             return stack;
         }
 
-        private int getFirst() {
+        public int getFirst() {
             return stack.getFirst();
         }
     }
 
     private static class DirectedCycle {
         private boolean hasCycle;
-        private boolean[] marked;
-        private boolean[] onStack;
+        private Set<Integer> marked;
+        private Deque<Integer> stack;
 
         public DirectedCycle(Digraph graph) {
-            marked = new boolean[graph.V()];
-            onStack = new boolean[graph.V()];
+            marked = new HashSet<>();
+            stack = new ArrayDeque<>();
 
-            for (int i = 0; i < marked.length; i++) {
-                if (!marked[i]) {
+            for (int i = 0; i < graph.V(); i++) {
+                if (!marked.contains(i)) {
                     dfs(graph, i);
                 }
             }
@@ -100,17 +102,17 @@ public class HypernymGraph {
                 return;
             }
 
-            marked[v] = true;
-            onStack[v] = true;
+            marked.add(v);
+            stack.addFirst(v);
             for (int w : graph.adj(v)) {
-                if (!marked[w]) {
-                    if (onStack[w]) {
+                if (!marked.contains(w)) {
+                    if (stack.contains(w)) {
                         hasCycle = true;
                     }
                     dfs(graph, w);
                 }
             }
-            onStack[v] = false;
+            stack.removeFirst();
         }
     }
 }

@@ -1,21 +1,19 @@
-import edu.princeton.cs.algs4.Digraph;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 
 public class WordNet {
-    SynonymBimap synonyms;
-    HypernymGraph hypernyms;
+    private SynonymDictionary synonyms;
+    private HypernymGraph hypernyms;
 
     // constructor takes the name of the two input files
     public WordNet(String synsets, String hypernyms) throws FileNotFoundException {
-        this.synonyms = new SynonymBimap(new File(synsets));
-        this.hypernyms = new HypernymGraph(synonyms.size(), new File(hypernyms));
+        this.synonyms = new SynonymDictionary(new File(synsets));
+        this.hypernyms = new HypernymGraph(synonyms.getNumberOfSynonyms(), new File(hypernyms));
     }
 
     // returns all WordNet nouns
     public Iterable<String> nouns() {
-        return synonyms.getNouns();
+        return synonyms.nouns();
     }
 
     // is the word a WordNet noun?
@@ -41,7 +39,7 @@ public class WordNet {
         SAP shortestAncestralPath = new SAP(hypernyms.getGraph());
 
         int ancestor = shortestAncestralPath.ancestor(synonyms.getId(nounA), synonyms.getId(nounB));
-        return synonyms.getSynonym(ancestor).toString();
+        return String.join(" ", synonyms.getSynonym(ancestor));
     }
 
     // do unit testing of this class

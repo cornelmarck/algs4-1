@@ -3,10 +3,18 @@ import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.StdIn;
 import edu.princeton.cs.algs4.StdOut;
 
-import java.util.Queue;
 import java.util.ArrayDeque;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Queue;
+import java.util.Queue;
+import java.util.Set;
 
 public class SAP {
     private Digraph graph;
@@ -74,23 +82,24 @@ public class SAP {
             bfs1 = new IteratingBFS(v);
             bfs2 = new IteratingBFS(w);
 
-            while (bfs1.hasNext() && bfs2.hasNext()) {
-                if (bfs2.isProcessed(bfs1.next())) {
-                    hasSolution = true;
-                    solution = bfs1.getPrevious();
-                    return;
+            while (bfs1.hasNext() || bfs2.hasNext()) {
+                if (bfs1.hasNext()) {
+                    int next1 = bfs1.next();
+                    if (bfs2.isMarked(next1)) {
+                        hasSolution = true;
+                        solution = next1;
+                        return;
+                    }
                 }
-                else if (bfs1.isProcessed(bfs2.next())) {
-                    hasSolution = true;
-                    solution = bfs2.getPrevious();
-                    return;
+                if (bfs2.hasNext()) {
+                    int next2 = bfs2.next();
+                    if (bfs1.isMarked(next2)) {
+                        hasSolution = true;
+                        solution = next2;
+                        return;
+                    }
                 }
             }
-            if (bfs1.getPrevious() == bfs2.getPrevious()) {
-                hasSolution = true;
-                solution = bfs1.getPrevious();
-            }
-
         }
 
         public boolean hasSolution() {
@@ -125,76 +134,67 @@ public class SAP {
 
             return inOrder;
         }
-
     }
 
     private class IteratingBFS {
-        private Queue<Integer> toDo;
-        private boolean[] marked;
-        private boolean[] processed;
-        private int[] edgeTo;
-        private int[] distanceTo;
-        private int previous;
+        private Queue<Integer> q;
+        private Set<Integer> marked;
+        private Map<Integer, Integer> edgeTo;
+        private Map<Integer, Integer> distanceTo;
 
         public IteratingBFS(Iterable<Integer> vertices) {
-            marked = new boolean[graph.V()];
-            processed = new boolean[graph.V()];
-            edgeTo = new int[graph.V()];
-            distanceTo = new int[graph.V()];
+            marked = new HashSet<>();
+            edgeTo = new HashMap<>();
+            distanceTo = new HashMap<>();
+            q = new ArrayDeque<>();
 
-            toDo = new ArrayDeque<>();
             for (int v : vertices) {
-                marked[v] = true;
-                edgeTo[v] = v;
-                toDo.add(v);
+                q.add(v);
+                marked.add(v);
+                edgeTo.put(v, v);
+                distanceTo.put(v, 0);
             }
         }
 
         public boolean hasNext() {
-            return !toDo.isEmpty();
+            return !q.isEmpty();
         }
 
         public int next() {
-            if (toDo.isEmpty()) {
+            if (q.isEmpty()) {
                 throw new NoSuchElementException();
             }
 
-            int v = toDo.remove();
+            int v = q.remove();
             for (int w : graph.adj(v)) {
-                if (!marked[w]) {
-                    toDo.add(w);
-                    marked[w] = true;
-                    edgeTo[w] = v;
-                    distanceTo[w] = distanceTo[v] + 1;
+                if (!marked.contains(w)) {
+                    q.add(w);
+                    marked.add(w);
+                    edgeTo.put(w, v);
+                    distanceTo.put(w, distanceTo.get(v) + 1);
                 }
             }
-            processed[v] = true;
-            previous = v;
 
             return v;
         }
 
-        public boolean isProcessed(int vertex) {
-            return processed[vertex];
+        public boolean isMarked(int vertex) {
+            return marked.contains(vertex);
         }
 
         public int getDistance(int vertex) {
-            return distanceTo[vertex];
-        }
-
-        public int getPrevious() {
-            return previous;
+            return distanceTo.get(vertex);
         }
 
         public List<Integer> getPathTo(int vertex) {
             Deque<Integer> stack = new ArrayDeque<>();
 
-            while (vertex != edgeTo[vertex]) {
-                vertex = edgeTo[vertex];
+            while (vertex != edgeTo.get(vertex)) {
+                vertex = edgeTo.get(vertex);
                 stack.addFirst(vertex);
             }
 
-            return stack.stream().toList();
+            return new ArrayList<>(stack);
         }
     }
 
