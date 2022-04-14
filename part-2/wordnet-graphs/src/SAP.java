@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Queue;
-import java.util.Queue;
 import java.util.Set;
 
 public class SAP {
@@ -74,31 +73,42 @@ public class SAP {
     private class LockstepBFS {
         private boolean hasSolution;
         private int solution;
+        private int solutionDistance;
 
-        private IteratingBFS bfs1;
-        private IteratingBFS bfs2;
+        private IteratingBFS first;
+        private IteratingBFS second;
 
         public LockstepBFS(Iterable<Integer> v, Iterable<Integer> w) {
-            bfs1 = new IteratingBFS(v);
-            bfs2 = new IteratingBFS(w);
+            first = new IteratingBFS(v);
+            second = new IteratingBFS(w);
 
-            while (bfs1.hasNext() || bfs2.hasNext()) {
-                if (bfs1.hasNext()) {
-                    int next1 = bfs1.next();
-                    if (bfs2.isMarked(next1)) {
-                        hasSolution = true;
-                        solution = next1;
-                        return;
+            while (isActive(first) || isActive(second)) {
+                if (isActive(first)) {
+                    first.next();
+                    if (second.isMarked(first.current)) {
+                        updateSolution(first.current);
                     }
                 }
-                if (bfs2.hasNext()) {
-                    int next2 = bfs2.next();
-                    if (bfs1.isMarked(next2)) {
-                        hasSolution = true;
-                        solution = next2;
-                        return;
+                if (isActive(second)) {
+                    second.next();
+                    if (first.isMarked(second.current)) {
+                        updateSolution(second.current);
                     }
                 }
+            }
+        }
+
+        private boolean isActive(IteratingBFS bfs) {
+            return bfs.hasNext() && (!hasSolution || bfs.currentDistance <= solutionDistance);
+        }
+
+        private void updateSolution(int ancestor) {
+            int distance = first.getDistance(ancestor) + second.getDistance(ancestor);
+
+            if (!hasSolution || distance < solutionDistance) {
+                hasSolution = true;
+                solution = ancestor;
+                solutionDistance = distance;
             }
         }
 
@@ -118,17 +128,17 @@ public class SAP {
             if (!hasSolution) {
                 throw new RuntimeException("No solution");
             }
-            return bfs1.getDistance(solution) + bfs2.getDistance(solution);
+            return solutionDistance;
         }
 
         public Iterable<Integer> getPath() {
             if (!hasSolution) {
                 throw new RuntimeException("No solution");
             }
-            List<Integer> inOrder = new ArrayList<>(bfs1.getPathTo(solution));
+            List<Integer> inOrder = new ArrayList<>(first.getPathTo(solution));
             inOrder.add(solution);
 
-            List<Integer> right = bfs2.getPathTo(solution);
+            List<Integer> right = second.getPathTo(solution);
             Collections.reverse(right);
             inOrder.addAll(right);
 
@@ -141,6 +151,9 @@ public class SAP {
         private Set<Integer> marked;
         private Map<Integer, Integer> edgeTo;
         private Map<Integer, Integer> distanceTo;
+
+        private int current;
+        private int currentDistance;
 
         public IteratingBFS(Iterable<Integer> vertices) {
             marked = new HashSet<>();
@@ -160,7 +173,7 @@ public class SAP {
             return !q.isEmpty();
         }
 
-        public int next() {
+        public void next() {
             if (q.isEmpty()) {
                 throw new NoSuchElementException();
             }
@@ -175,7 +188,8 @@ public class SAP {
                 }
             }
 
-            return v;
+            current = v;
+            currentDistance = distanceTo.get(v);
         }
 
         public boolean isMarked(int vertex) {

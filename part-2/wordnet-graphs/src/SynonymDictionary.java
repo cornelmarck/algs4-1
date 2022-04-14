@@ -15,7 +15,7 @@ public class SynonymDictionary {
         nounToId = new HashMap<>();
         idToNoun = new HashMap<>();
     }
-    public SynonymDictionary(File txt) throws FileNotFoundException {
+    public SynonymDictionary(File txt){
         this();
         readFromFile(txt);
     }
@@ -55,16 +55,18 @@ public class SynonymDictionary {
         return idToNoun.keySet();
     }
 
-    private void readFromFile(File txt) throws FileNotFoundException {
-        Scanner scanner = new Scanner(txt);
+    private void readFromFile(File txt){
+        try (Scanner scanner = new Scanner(txt)) {
+            while (scanner.hasNextLine()) {
+                String[] fields = scanner.nextLine().split(",");
+                int id = Integer.parseInt(fields[0]);
+                String[] synonyms = fields[1].split(" ");
 
-        while (scanner.hasNextLine()) {
-            String[] fields = scanner.nextLine().split(",");
-            int id = Integer.parseInt(fields[0]);
-            String[] synonyms = fields[1].split(" ");
-
-            addSynonymSet(id, Set.of(synonyms));
+                addSynonymSet(id, Set.of(synonyms));
+            }
         }
+        catch (FileNotFoundException ignored) {}
+
     }
 
 

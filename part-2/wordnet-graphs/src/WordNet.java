@@ -4,11 +4,13 @@ import java.io.FileNotFoundException;
 public class WordNet {
     private SynonymDictionary synonyms;
     private HypernymGraph hypernyms;
+    private SAP shortestAncestralPath;
 
     // constructor takes the name of the two input files
-    public WordNet(String synsets, String hypernyms) throws FileNotFoundException {
+    public WordNet(String synsets, String hypernyms){
         this.synonyms = new SynonymDictionary(new File(synsets));
         this.hypernyms = new HypernymGraph(synonyms.getNumberOfSynonyms(), new File(hypernyms));
+        shortestAncestralPath = new SAP(this.hypernyms.getGraph());
     }
 
     // returns all WordNet nouns
@@ -26,7 +28,7 @@ public class WordNet {
         if (!isNoun(nounA) || !isNoun(nounB)) {
             throw new IllegalArgumentException("Noun does not exist");
         }
-        SAP shortestAncestralPath = new SAP(hypernyms.getGraph());
+
         return shortestAncestralPath.length(synonyms.getId(nounA), synonyms.getId(nounB));
     }
 
@@ -36,7 +38,6 @@ public class WordNet {
         if (!isNoun(nounA) || !isNoun(nounB)) {
             throw new IllegalArgumentException("Noun does not exist");
         }
-        SAP shortestAncestralPath = new SAP(hypernyms.getGraph());
 
         int ancestor = shortestAncestralPath.ancestor(synonyms.getId(nounA), synonyms.getId(nounB));
         return String.join(" ", synonyms.getSynonym(ancestor));

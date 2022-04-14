@@ -12,7 +12,7 @@ public class HypernymGraph {
     private final Digraph graph;
     private final TopologicalSort topological;
 
-    public HypernymGraph(int size, File edges) throws FileNotFoundException {
+    public HypernymGraph(int size, File edges) {
         graph = new Digraph(size);
         readFile(edges);
 
@@ -24,14 +24,18 @@ public class HypernymGraph {
         topological = new TopologicalSort(graph);
     }
 
-    private void readFile(File edges) throws FileNotFoundException {
-        Scanner scanner = new Scanner(edges);
+    private void readFile(File edges) {
+        try (Scanner scanner = new Scanner(edges)) {
 
-        while (scanner.hasNextLine()) {
-            String[] values = scanner.nextLine().split(",");
-            for (int i = 1; i < values.length; i++) {
-                graph.addEdge(Integer.parseInt(values[0]), Integer.parseInt(values[i]));
+            while (scanner.hasNextLine()) {
+                String[] values = scanner.nextLine().split(",");
+                for (int i = 1; i < values.length; i++) {
+                    graph.addEdge(Integer.parseInt(values[0]), Integer.parseInt(values[i]));
+                }
             }
+        }
+        catch (FileNotFoundException e) {
+            System.out.println("File not found");
         }
     }
 

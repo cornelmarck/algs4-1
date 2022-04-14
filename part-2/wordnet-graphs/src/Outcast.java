@@ -44,7 +44,7 @@ public class Outcast {
 
 
 
-    public static void main(String[] args) throws FileNotFoundException {
+    public static void main(String[] args) {
         WordNet wordnet = new WordNet(args[0], args[1]);
         Outcast outcast = new Outcast(wordnet);
 
